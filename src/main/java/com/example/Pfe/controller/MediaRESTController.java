@@ -5,6 +5,9 @@ import com.example.Pfe.service.MediaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/media")
@@ -13,10 +16,12 @@ public class MediaRESTController {
     @Autowired
     private MediaService mediaService;
 
-    @PostMapping("/save")
-    public ResponseEntity<Media> saveMedia(@RequestBody Media media) {
-        System.out.println("Requête POST reçue pour sauvegarder un média : " + media);
-        Media savedMedia = mediaService.saveMedia(media);
+    @PostMapping("/upload")
+    public ResponseEntity<Media> uploadMedia(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("publicationId") Long publicationId) throws IOException {
+        System.out.println("Requête POST reçue pour uploader un média : " + file.getOriginalFilename());
+        Media savedMedia = mediaService.saveMedia(file, publicationId);
         System.out.println("Média sauvegardé : " + savedMedia);
         return ResponseEntity.ok(savedMedia);
     }

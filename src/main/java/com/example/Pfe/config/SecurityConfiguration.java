@@ -39,7 +39,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/media/**").permitAll()
 
                         .requestMatchers("/api/v1/admin").hasAuthority(Role.ADMIN.name())
-                        .requestMatchers("/api/v1/manager").hasAuthority(Role.MANAGER.name())
+                        //.requestMatchers("/api/v1/manager").hasAuthority(Role.MANAGER.name())
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
