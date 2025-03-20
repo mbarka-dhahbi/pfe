@@ -34,6 +34,13 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+
+    @Column(name = "is_email_confirmed")
+    private boolean isEmailConfirmed = false; // Par défaut, l'email n'est pas confirmé
+
+    @Column(name = "confirmation_token")
+    private String confirmationToken;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

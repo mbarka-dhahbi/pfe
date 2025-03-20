@@ -6,12 +6,10 @@ import com.example.Pfe.dto.SignInRequest;
 import com.example.Pfe.dto.SignUpRequest;
 import com.example.Pfe.entites.User;
 import com.example.Pfe.service.AuthenticationService;
+import com.example.Pfe.service.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -19,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthentificationController {
 
     private final AuthenticationService authenticationService;
-
+    private final UserServiceImpl userService; // Injecte UserServiceImpl
     @PostMapping("/signup")
     public ResponseEntity<User> signup(@RequestBody SignUpRequest signUpRequest) {
         return ResponseEntity.ok(authenticationService.signUp(signUpRequest));
@@ -34,5 +32,16 @@ public class AuthentificationController {
     @PostMapping("/refresh")
     public ResponseEntity<JwtAuthentificationResponse> refresh(@RequestBody RefreshTokenRequest refreshTokenRequest) {
         return ResponseEntity.ok(authenticationService.refreshToken(refreshTokenRequest));
+    }
+
+
+    @GetMapping("/confirm")
+    public ResponseEntity<String> confirmEmail(@RequestParam("token") String token) {
+        boolean confirmed = userService.confirmEmail(token);
+        if (confirmed) {
+            return ResponseEntity.ok("Email confirmed successfully. You can now sign in.");
+        } else {
+            return ResponseEntity.badRequest().body("Invalid or expired confirmation token.");
+        }
     }
 }

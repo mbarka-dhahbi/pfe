@@ -14,14 +14,15 @@ import org.springframework.web.bind.annotation.*;
 public class PasswordResetController {
 
     private final UserServiceImpl userService;
-
-    @PostMapping("/reset-password")
+    // Demander un token de réinitialisation
+    @PostMapping("/forgot-password")
     public ResponseEntity<String> resetPassword(@RequestBody PasswordResetRequest request) {
         String token = userService.createPasswordResetToken(request.getEmail());
         String resetLink = "http://localhost:8080/api/v1/auth/reset-password?token=" + token;
-        return ResponseEntity.ok("Password reset link sent to your email.");
+        // Pour tester, on retourne le lien directement. Dans une application réelle, envoie un email.
+        return ResponseEntity.ok("Password reset link sent to your email." + resetLink);
     }
-
+    // Valider un token (optionnel, peut être utilisé pour une page web)
     @GetMapping("/reset-password")
     public ResponseEntity<String> showResetPasswordPage(@RequestParam("token") String token) {
         if (userService.validatePasswordResetToken(token)) {
@@ -30,7 +31,7 @@ public class PasswordResetController {
             return ResponseEntity.badRequest().body("Invalid token.");
         }
     }
-
+    // Confirmer la réinitialisation du mot de passe
     @PostMapping("/reset-password/confirm")
     public ResponseEntity<String> confirmResetPassword(
             @RequestParam("token") String token,

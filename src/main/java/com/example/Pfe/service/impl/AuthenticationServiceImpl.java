@@ -11,12 +11,15 @@ import com.example.Pfe.repository.UserRepository;
 import com.example.Pfe.service.AuthenticationService;
 import com.example.Pfe.service.JWTService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +29,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
+    private final JavaMailSender mailSender; // Injecte JavaMailSender
 
     @Override
     public User signUp(SignUpRequest signUpRequest) {
@@ -35,7 +39,24 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setEmail(signUpRequest.getEmail());
         user.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
         user.setRole(Role.COLLABORATOR);
+        user.setEmailConfirmed(false); // L'email n'est pas encore confirmé
+        user.setConfirmationToken(UUID.randomUUID().toString()); // Génère un token de confirmation
+
+        // Sauvegarde l'utilisateur
+        User savedUser = userRepository.save(user);
+
+        // Envoie un email de confirmation
+        sendConfirmationEmail(savedUser);
         return userRepository.save(user);
+    }
+
+    private void sendConfirmationEmail(User user) {
+        String confirmationLink = "http://localhost:8080/api/v1/auth/confirm?token=" + user.getConfirmationToken();
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(user.getEmail());
+        message.setSubject("Confirmez votre adresse email");
+        message.setText("Merci de vous être inscrit ! Veuillez confirmer votre adresse email en cliquant sur ce lien : " + confirmationLink);
+        mailSender.send(message);
     }
     @Override
     public JwtAuthentificationResponse signIn(SignInRequest signInRequest) {

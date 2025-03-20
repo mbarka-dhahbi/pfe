@@ -3,6 +3,7 @@ package com.example.Pfe.dto;
 
 public class PasswordResetConfirmRequest {
     private String newPassword;
+    private String token;
 
     // Getters and setters
     public String getNewPassword() {

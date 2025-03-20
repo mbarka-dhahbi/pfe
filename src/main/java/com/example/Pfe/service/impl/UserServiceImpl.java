@@ -57,6 +57,17 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
+    public boolean confirmEmail(String token) {
+        var user = userRepository.findByConfirmationToken(token).orElse(null);
+        if (user != null) {
+            user.setEmailConfirmed(true);
+            user.setConfirmationToken(null); // Supprime le token après confirmation
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
+
     /*@Override
     public User saveUtilisateur(User u) {
 
