@@ -19,7 +19,7 @@ public class AuthentificationController {
     private final AuthenticationService authenticationService;
     private final UserServiceImpl userService; // Injecte UserServiceImpl
     @PostMapping("/signup")
-    public ResponseEntity<User> signup(@RequestBody SignUpRequest signUpRequest) {
+    public ResponseEntity<JwtAuthentificationResponse> signup(@RequestBody SignUpRequest signUpRequest) {
         return ResponseEntity.ok(authenticationService.signUp(signUpRequest));
     }
 

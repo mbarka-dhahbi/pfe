@@ -8,7 +8,7 @@ import com.example.Pfe.dto.SignUpRequest;
 import com.example.Pfe.entites.User;
 
 public interface AuthenticationService {
-    User signUp(SignUpRequest signUpRequest);
+    JwtAuthentificationResponse signUp(SignUpRequest signUpRequest);
     JwtAuthentificationResponse signIn(SignInRequest signInRequest);
     JwtAuthentificationResponse refreshToken(RefreshTokenRequest refreshTokenRequest);
 

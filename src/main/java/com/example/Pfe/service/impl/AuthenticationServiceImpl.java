@@ -32,7 +32,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JavaMailSender mailSender; // Injecte JavaMailSender
 
     @Override
-    public User signUp(SignUpRequest signUpRequest) {
+    public JwtAuthentificationResponse signUp(SignUpRequest signUpRequest) {
         User user = new User();
         user.setFirstName(signUpRequest.getFirstName());
         user.setLastName(signUpRequest.getLastName());
@@ -44,10 +44,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         // Sauvegarde l'utilisateur
         User savedUser = userRepository.save(user);
-
         // Envoie un email de confirmation
         sendConfirmationEmail(savedUser);
-        return userRepository.save(user);
+        //générer un token
+        String token = jwtService.generateToken(savedUser);
+        String refreshToken = jwtService.generateRefreshToken(new HashMap<>(), savedUser);
+
+        JwtAuthentificationResponse response = new JwtAuthentificationResponse();
+        response.setToken(token);
+        response.setRefreshToken(refreshToken);
+
+        return response;
     }
 
     private void sendConfirmationEmail(User user) {
