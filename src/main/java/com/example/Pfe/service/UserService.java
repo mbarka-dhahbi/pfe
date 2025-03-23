@@ -14,4 +14,6 @@ public interface UserService {
     void deleteById(Long id);
     List<User> getAllUtilisateurs();
     User updateUtilisateur(User u);
+
+    User findByEmail(String email); // Ajoute cette méthode
 }

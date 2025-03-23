@@ -6,10 +6,14 @@ import com.example.Pfe.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 import static org.springframework.http.ResponseEntity.*;
@@ -17,7 +21,7 @@ import static org.springframework.http.ResponseEntity.*;
 @RestController
 @RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "*")
 public class UserController {
     @Autowired
     private UserService userService;
@@ -25,7 +29,7 @@ public class UserController {
     private final CommentaireService commentaireService;
     private  final InteractionService interactionService;
     private final MediaService mediaService;
-
+private final CategorieService categorieService;
 
 
     @GetMapping
@@ -69,6 +73,90 @@ public class UserController {
     }*/
 
     // Gestion des publications
+
+    @PostMapping(value = "/publications/with-media", consumes = {"multipart/form-data"})
+    public ResponseEntity<?> createPublicationWithMedia(
+            @RequestParam("titre") String titre,
+            @RequestParam("contenu") String contenu,
+            @RequestParam(value = "lien", required = false) String lien,
+            @RequestParam(value = "localisation", required = false) String localisation,
+            @RequestParam(value = "active", required = false, defaultValue = "true") boolean active,
+            @RequestParam("categorieId") Long categorieId,
+         //   @RequestParam("userId") Long userId,
+            @RequestParam(value = "files", required = false) MultipartFile[] files) throws IOException {
+        try {
+            // Crée la publication
+            Publication publication = new Publication();
+            publication.setTitre(titre);
+            publication.setContenu(contenu);
+            publication.setLien(lien);
+            publication.setLocalisation(localisation);
+            publication.setActive(active);
+            publication.setDate(new Date()); // Définit la date actuelle
+/*
+            // Récupère l'utilisateur
+            User user = userService.getUtilisateur(userId);
+            if (user == null) {
+                return ResponseEntity.badRequest().body("Utilisateur avec l'ID " + userId + " non trouvé.");
+            }
+            publication.setUser(user);
+*/
+            // Récupère l'utilisateur connecté
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            String email = authentication.getName();
+            User user = userService.findByEmail(email);
+            if (user == null) {
+                return ResponseEntity.badRequest().body("Utilisateur non trouvé.");
+            }
+            publication.setUser(user);
+            // Récupère la catégorie
+            Categorie categorie = categorieService.getCategorie(categorieId);
+            if (categorie == null) {
+                return ResponseEntity.badRequest().body("Catégorie avec l'ID " + categorieId + " non trouvée.");
+            }
+            publication.setCategorie(categorie);
+
+            // Sauvegarde la publication
+            Publication createdPublication = publicationService.createPublication(publication);
+
+            // Si des fichiers sont fournis, associe-les à la publication
+            if (files != null && files.length > 0) {
+                mediaService.saveMultipleMedia(files, createdPublication.getId());
+            }
+
+            return ResponseEntity.ok(createdPublication);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Erreur lors de la création de la publication : " + e.getMessage());
+        }
+    }/*
+    @PostMapping(value = "/publications/with-media", consumes = {"multipart/form-data"})
+    public ResponseEntity<Publication> createPublicationWithMedia(
+            @RequestParam("contenu") String contenu,
+            @RequestParam("userId") Long userId,
+            @RequestParam(value = "files", required = false) MultipartFile[] files) throws IOException {
+        try {
+            // Crée la publication
+            Publication publication = new Publication();
+            publication.setContenu(contenu);
+
+            User user = userService.getUtilisateur(userId);
+            if (user == null) {
+                return ResponseEntity.badRequest().body(null);
+            }
+            publication.setUser(user);
+
+            Publication createdPublication = publicationService.createPublication(publication);
+
+            // Si des fichiers sont fournis, associe-les à la publication
+            if (files != null && files.length > 0) {
+                mediaService.saveMultipleMedia(files, createdPublication.getId());
+            }
+
+            return ResponseEntity.ok(createdPublication);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }*/
     @PostMapping ("/publications")
     public ResponseEntity<Publication> createPublication(@RequestBody Publication publication) {
         Publication createdPublication = publicationService.createPublication(publication);
@@ -93,7 +181,9 @@ public class UserController {
         return ResponseEntity.ok(publications);
     }
 
-
+//categorie
+@GetMapping ("/categories")
+public List<Categorie> getAllCategorie(){return categorieService.getAllCategorie();}
 
     // Gestion des médias
 
@@ -105,6 +195,18 @@ public class UserController {
         Media savedMedia = mediaService.saveMedia(file, publicationId);
         System.out.println("Média sauvegardé : " + savedMedia);
         return ResponseEntity.ok(savedMedia);
+    }
+
+    @PostMapping("/upload-multiple/{publicationId}")
+    public ResponseEntity<List<Media>> uploadMultipleMedia(
+            @RequestParam("files") MultipartFile[] files,
+            @PathVariable Long publicationId) {
+        try {
+            List<Media> savedMedia = mediaService.saveMultipleMedia(files, publicationId);
+            return ResponseEntity.ok(savedMedia);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 
     @GetMapping("/media/{id}")

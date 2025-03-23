@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -94,5 +95,10 @@ public class UserServiceImpl implements UserService {
     public User updateUtilisateur(User u) {
 
         return userRepository.save(u);
+    }
+    @Override
+    public User findByEmail(String email) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        return userOptional.orElse(null);
     }
 }

@@ -91,6 +91,18 @@ public class AdminController{
         return ResponseEntity.ok(savedMedia);
     }
 
+    @PostMapping("/upload-multiple/{publicationId}")
+    public ResponseEntity<List<Media>> uploadMultipleMedia(
+            @RequestParam("files") MultipartFile[] files,
+            @PathVariable Long publicationId) {
+        try {
+            List<Media> savedMedia = mediaService.saveMultipleMedia(files, publicationId);
+            return ResponseEntity.ok(savedMedia);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
+
     @GetMapping("/media/{id}")
     public ResponseEntity<Media> getMedia(@PathVariable Long id) {
         Media media = mediaService.getMedia(id);
