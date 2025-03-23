@@ -1,6 +1,7 @@
 package com.example.Pfe.entites;
 
 import com.example.Pfe.entites.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Setter;
@@ -77,14 +78,17 @@ public class User implements UserDetails {
     }
 
     // Relation OneToMany : Un utilisateur peut avoir plusieurs publications
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true) // "mappedBy" indique que la relation est gérée par le champ "user" dans Publication
     private List<Publication> publications;
 
     // Relation OneToMany : Un utilisateur peut poster plusieurs commentaires
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Commentaire> commentaires;
 
     // Relation OneToMany : Un utilisateur peut interagir avec plusieurs publications
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Interaction> interactions;
 

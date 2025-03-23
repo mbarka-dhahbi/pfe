@@ -1,5 +1,6 @@
 package com.example.Pfe.entites;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -44,14 +45,17 @@ public class Publication {
 
 
     // Relation OneToMany : Une publication peut avoir plusieurs commentaires
+    @JsonIgnore
     @OneToMany(mappedBy = "publication", cascade = CascadeType.ALL)
     private List<Commentaire> commentaires;
 
     // Relation OneToMany : Une publication peut avoir plusieurs interactions (évaluations)
+    @JsonIgnore
     @OneToMany(mappedBy = "publication", cascade = CascadeType.ALL)
     private List<Interaction> interactions;
 
     // Relation OneToMany : Une publication peut avoir plusieurs médias (images/vidéos)
+    @JsonIgnore
     @OneToMany(mappedBy = "publication", cascade = CascadeType.ALL)
     private List<Media> medias;
 }

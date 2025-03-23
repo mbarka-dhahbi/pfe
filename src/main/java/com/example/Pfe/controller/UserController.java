@@ -157,11 +157,11 @@ private final CategorieService categorieService;
             return ResponseEntity.badRequest().body(null);
         }
     }*/
-    @PostMapping ("/publications")
+    /*@PostMapping ("/publications")
     public ResponseEntity<Publication> createPublication(@RequestBody Publication publication) {
         Publication createdPublication = publicationService.createPublication(publication);
         return ResponseEntity.ok(createdPublication);
-    }
+    }*/
 
     @PutMapping("/publications/{id}")
     public ResponseEntity<Publication> updatePublication(@PathVariable Long id, @RequestBody Publication publication) {
@@ -181,9 +181,9 @@ private final CategorieService categorieService;
         return ResponseEntity.ok(publications);
     }
 
-//categorie
-@GetMapping ("/categories")
-public List<Categorie> getAllCategorie(){return categorieService.getAllCategorie();}
+    //categorie
+    @GetMapping ("/categories")
+    public List<Categorie> getAllCategorie(){return categorieService.getAllCategorie();}
 
     // Gestion des médias
 

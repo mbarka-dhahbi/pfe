@@ -1,5 +1,6 @@
 package com.example.Pfe.entites;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,6 +23,7 @@ public class Categorie {
 
 
     // Relation OneToMany : Une catégorie peut regrouper plusieurs publications
+    @JsonIgnore
     @OneToMany(mappedBy = "categorie", cascade = CascadeType.ALL)
     private List<Publication> publications;
 }
