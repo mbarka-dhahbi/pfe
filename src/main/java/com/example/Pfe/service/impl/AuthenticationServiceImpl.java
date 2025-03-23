@@ -62,7 +62,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public JwtAuthentificationResponse signIn(SignInRequest signInRequest) {
         User user = userRepository.findByEmail(signInRequest.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
+        if(user.isEmailConfirmed() == true) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(signInRequest.getEmail(), signInRequest.getPassword())
@@ -76,7 +76,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         JwtAuthentificationResponse response = new JwtAuthentificationResponse();
         response.setToken(jwt);
         response.setRefreshToken(refreshToken);
-        return response;
+            return response;
+        }else{
+            throw new RuntimeException("Email not confirmed");
+        }
     }
 
 
