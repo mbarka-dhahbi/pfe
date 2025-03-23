@@ -39,6 +39,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         jwt = authHeader.substring(7);
+        // Check if the token has exactly 2 period characters (three parts)
+        if (jwt.chars().filter(ch -> ch == '.').count() != 2) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         userEmail = jwtService.extractUserName(jwt);
 
         if (StringUtils.hasText(userEmail) && SecurityContextHolder.getContext().getAuthentication() == null) {
